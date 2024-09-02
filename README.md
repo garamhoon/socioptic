@@ -2,6 +2,10 @@
 
 Socioptic은 소셜 미디어 관리 및 분석을 위한 종합 플랫폼입니다.
 
+## 목표
+
+- nodejs, expressjs, nextjs에 익숙해지기
+
 ## 기능
 
 - 소셜 미디어 계정 연동 및 관리
@@ -11,8 +15,8 @@ Socioptic은 소셜 미디어 관리 및 분석을 위한 종합 플랫폼입니
 
 ## 프로젝트 구조
 
-- `frontend/`: React 기반의 프론트엔드 애플리케이션
-- `backend/`: Express.js 기반의 백엔드 서버
+- `frontend/`: Next.js 기반의 프론트엔드 웹 애플리케이션
+- `backend/`: Express.js 기반의 백엔드 API 서버
 
 ## 시작하기
 
@@ -31,10 +35,11 @@ Socioptic은 소셜 미디어 관리 및 분석을 위한 종합 플랫폼입니
    npm run install:all
    ```
 
-3. frontend 폴더에 `.env` 파일을 추가 후 port를 설정합니다:
+3. frontend app을 https로 실행시키기 위하여 ssl 키를 생성하세요:
 
    ```
-   PORT=8081
+   mkdir frontend/keys && cd frontend/keys
+   openssl req -x509 -newkey rsa:4096 -nodes -keyout key.pem -out cert.pem -days 365
    ```
 
 ### 실행
@@ -44,12 +49,12 @@ Socioptic은 소셜 미디어 관리 및 분석을 위한 종합 플랫폼입니
 1. 다음 명령어를 실행하세요:
 
    ```
-   npm start
+   npm run dev
    ```
 
    이 명령어는 백엔드와 프론트엔드를 동시에 실행합니다.
 
-2. 브라우저에서 `http://localhost:8081`으로 접속하여 프론트엔드를 확인할 수 있습니다.
+2. 브라우저에서 `https://localhost:8081`으로 접속하여 프론트엔드를 확인할 수 있습니다.
 3. 백엔드 API는 `http://localhost:8080`에서 실행됩니다.
 
 ## 기술 스택
