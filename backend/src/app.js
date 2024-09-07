@@ -2,15 +2,11 @@ import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import authRoutes from './routes/auth.js';
-import dotenv from 'dotenv';
 import cors from 'cors';
-import fs from 'fs';
 import './config/passport.js';
 
 const app = express();
 const port = process.env.PORT || 8080;
-
-dotenv.config();
 
 app.use(
   cors({
