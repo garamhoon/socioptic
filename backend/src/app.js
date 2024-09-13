@@ -20,7 +20,10 @@ app.use(
     secret: process.env.APP_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: true },
+    cookie: {
+      secure: process.env.NODE_ENV === 'production', // HTTPS를 사용하는 경우에만 true로 설정
+      maxAge: 24 * 60 * 60 * 1000, // 24시간
+    },
   })
 );
 

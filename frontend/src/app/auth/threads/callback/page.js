@@ -1,41 +1,39 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import axios from 'axios';
 
 export default function ThreadsCallbackPage() {
   const [isOauthProcessing, setIsOauthProcessing] = useState(true);
-  const [oauthSuccess, setOauthSuccess] = useState(false);
   const [oauthError, setOauthError] = useState(null);
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
     const storedState = sessionStorage.getItem('oauth_state');
-
     const stateFromCallback = searchParams.get('state');
 
-    console.log('storedState', storedState);
-    console.log('stateFromCallback', stateFromCallback);
-
     if (stateFromCallback !== storedState) {
-      // 에러 처리 로직
       setIsOauthProcessing(false);
+      setOauthError('OAuth state is not valid');
     } else {
-      // 정상적인 인증 처리 로직
-
       const code = searchParams.get('code');
 
       const processOauth = async () => {
-        console.log('backend url', process.env.NEXT_PUBLIC_BACKEND_URL);
-        console.log('backend url2', process.env.BACKEND_URL);
         try {
           const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/threads/callback?code=${code}`);
 
           if (response.status === 200) {
-            setOauthSuccess(true);
-            console.log('response.data', response.data);
+            const { generatedToken, user } = response.data;
+
+            // 토큰과 사용자 정보를 로컬 스토리지에 저장
+            localStorage.setItem('authToken', generatedToken);
+            localStorage.setItem('user', JSON.stringify(user));
+
+            // 로그인 성공 후 메인 페이지로 리다이렉트
+            router.push('/');
           } else {
             setOauthError(response.data.error);
           }
@@ -52,22 +50,12 @@ export default function ThreadsCallbackPage() {
   }, []);
 
   if (isOauthProcessing) {
-    return <p>oauth processing...</p>;
+    return <p>인증 처리 중...</p>;
   }
 
-  if (!oauthSuccess) {
-    return (
-      <div>
-        <p>oauth state is not valid</p>
-        <Link href="/">home</Link>
-      </div>
-    );
+  if (oauthError) {
+    return <p>인증 오류: {oauthError}</p>;
   }
 
-  return (
-    <div>
-      <p>oauth success</p>
-      <Link href="/">home</Link>
-    </div>
-  );
+  return null; // 로그인 성공 시 메인 페이지로 리다이렉트되므로 이 부분은 실행되지 않습니다.
 }
