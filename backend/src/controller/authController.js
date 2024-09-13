@@ -4,10 +4,8 @@ import { authConfig } from '../config/auth.js';
 export const threadsCallback = (req, res) => {
   if (req.user) {
     try {
-      // req.user 객체를 JSON 형태로 응답
       const { user } = req;
 
-      console.log('authConfig', authConfig);
       const generatedToken = jwt.sign(user, authConfig.jwt.secret, { expiresIn: '1h' });
 
       res.json({ generatedToken });
@@ -16,6 +14,6 @@ export const threadsCallback = (req, res) => {
       res.status(500).json({ error: 'Threads 인증 처리 중 오류가 발생했습니다.' });
     }
   } else {
-    res.status(401).json({ error: '이미 인증된 사용자입니다.' });
+    res.status(401).json({ error: '인증되지 않은 사용자입니다.' });
   }
 };
