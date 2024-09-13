@@ -11,7 +11,6 @@ export default function Home() {
     const state = new Date().getTime().toString();
     setOauthState(state);
     sessionStorage.setItem('oauth_state', state);
-    console.log('oauthState, state', oauthState, state);
   }, []);
 
   const tempThreadsLoginUrl = `https://threads.net/oauth/authorize?client_id=511541781411099&redirect_uri=https://localhost:8081/auth/threads/callback&scope=threads_basic,threads_content_publish&response_type=code&state=${oauthState}`;

@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^5.19.1",
     "axios": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -19,6 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "passport": "^0.7.0",
     "passport-custom": "^1.1.1",
+    "prisma": "^5.19.1",
     "query-string": "^9.1.0"
   },
   "devDependencies": {

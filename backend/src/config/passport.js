@@ -18,8 +18,6 @@ passport.use(
         redirect_uri: `${process.env.FRONTEND_URL}/auth/threads/callback`,
       });
 
-      console.log('tokenResponse', tokenResponse.data);
-
       const { access_token, user_id } = tokenResponse.data;
 
       const userId = `threads_${user_id}`;

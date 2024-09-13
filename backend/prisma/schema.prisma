@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String           @id @default(uuid())
+  username       String           @unique
+  name           String?
+  profilePicture String?
+  biography      String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  auth           Auth?
+  socialAccounts SocialAccount[]
+}
+
+model Auth {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  token     String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SocialAccount {
+  id           String     @id @default(uuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  provider     SocialProvider
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, provider])
+  @@unique([provider, providerId])
+}
+
+enum SocialProvider {
+  THREADS
+  INSTAGRAM
+  FACEBOOK
+  X
+  // 추가 소셜 미디어 플랫폼을 여기에 추가할 수 있습니다.
+}
