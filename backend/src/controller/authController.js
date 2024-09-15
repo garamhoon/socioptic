@@ -9,7 +9,7 @@ export const threadsCallback = async (req, res) => {
   if (req.user) {
     try {
       const { user } = req;
-      console.log('user', user);
+
       const generatedToken = jwt.sign({ userId: user.id, provider: user.socialProvider }, authConfig.jwt.secret, {
         expiresIn: '1h',
       });

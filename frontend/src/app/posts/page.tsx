@@ -5,9 +5,14 @@ import { useAuth } from '../../contexts/AuthContext';
 import axios from 'axios';
 
 interface Post {
-  id: string;
-  text: string;
-  timestamp: string;
+  externalId: string;
+  content: string;
+  createdAt: string;
+  views: number;
+  likes: number;
+  replies: number;
+  reposts: number;
+  quotes: number;
 }
 
 export default function PostsPage() {
@@ -33,7 +38,7 @@ export default function PostsPage() {
           withCredentials: true,
         });
 
-        setPosts(response.data.data);
+        setPosts(response.data.posts);
       } catch (err) {
         setError('포스트를 불러오는 중 오류가 발생했습니다.');
         console.error(err);
@@ -55,21 +60,32 @@ export default function PostsPage() {
         <p>포스트가 없습니다.</p>
       ) : (
         <ul className="space-y-4">
-          {posts
-            .filter((post) => post.text)
-            .map((post) => (
-              <li key={post.id} className="bg-white shadow rounded-lg p-4">
-                <p className="text-gray-800">
-                  {post.text.split('\n').map((line, index) => (
-                    <React.Fragment key={index}>
-                      {line}
-                      {index < post.text.split('\n').length - 1 && <br />}
-                    </React.Fragment>
-                  ))}
-                </p>
-                <p className="text-sm text-gray-500 mt-2">작성일: {new Date(post.timestamp).toLocaleString()}</p>
-              </li>
-            ))}
+          {posts.map((post, index, array) => (
+            <li
+              key={post.externalId}
+              className="bg-white shadow rounded-lg p-4 transition-transform duration-300 ease-in-out hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-lg font-semibold text-gray-800">포스트 #{array.length - index}</span>
+                <p className="text-sm text-gray-500">작성일: {new Date(post.createdAt).toLocaleString()}</p>
+              </div>
+              <p className="text-gray-800">
+                {post.content.split('\n').map((line, lineIndex) => (
+                  <React.Fragment key={lineIndex}>
+                    {line}
+                    {lineIndex < post.content.split('\n').length - 1 && <br />}
+                  </React.Fragment>
+                ))}
+              </p>
+              <div className="mt-2 flex space-x-4 text-sm text-gray-600">
+                <span>조회수: {post.views.toLocaleString()}</span>
+                <span>좋아요: {post.likes.toLocaleString()}</span>
+                <span>댓글: {post.replies.toLocaleString()}</span>
+                <span>리포스트: {post.reposts.toLocaleString()}</span>
+                <span>인용: {post.quotes.toLocaleString()}</span>
+              </div>
+            </li>
+          ))}
         </ul>
       )}
     </div>
