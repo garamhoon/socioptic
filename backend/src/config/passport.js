@@ -1,6 +1,10 @@
 import passport from 'passport';
 import { Strategy as CustomStrategy } from 'passport-custom';
 import axios from 'axios';
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
+
+const socialProvider = 'THREADS';
 
 passport.use(
   'threads',
@@ -18,9 +22,7 @@ passport.use(
         redirect_uri: `${process.env.FRONTEND_URL}/auth/threads/callback`,
       });
 
-      const { access_token, user_id } = tokenResponse.data;
-
-      const userId = `threads_${user_id}`;
+      const { access_token } = tokenResponse.data;
 
       // 액세스 토큰으로 사용자 정보 요청
       const userResponse = await axios.get(
@@ -29,16 +31,49 @@ passport.use(
 
       const profile = userResponse.data;
 
-      // 여기에서 사용자 정보를 데이터베이스에 저장하거나 조회하는 로직을 구현합니다.
-      // 예: const user = await User.findOrCreate({ threadsId: profile.id });
+      const providerId = profile.id.toString();
 
-      const user = {
-        id: userId,
-        test: true,
-        ...profile,
-      };
+      // 사용자 정보 저장 또는 업데이트
+      const savedUser = await prisma.user.upsert({
+        where: { username: profile.username },
+        update: {
+          name: profile.name,
+          profilePicture: profile.threads_profile_picture_url,
+          biography: profile.threads_biography,
+        },
+        create: {
+          username: profile.username,
+          name: profile.name,
+          profilePicture: profile.threads_profile_picture_url,
+          biography: profile.threads_biography,
+        },
+      });
 
-      done(null, user);
+      // 소셜 계정 정보 저장 또는 업데이트
+      await prisma.socialAccount.upsert({
+        where: {
+          userId_provider: {
+            userId: savedUser.id,
+            provider: socialProvider,
+          },
+        },
+        update: {
+          providerId: providerId,
+          accessToken: access_token,
+          // refreshToken이 있다면 여기에 추가
+        },
+        create: {
+          userId: savedUser.id,
+          provider: socialProvider,
+          providerId: providerId,
+          accessToken: access_token,
+          // refreshToken이 있다면 여기에 추가
+        },
+      });
+
+      savedUser.socialProvider = socialProvider;
+
+      done(null, savedUser);
     } catch (error) {
       console.error('error', error.config.url, error.response?.data);
       done(error);
@@ -47,9 +82,15 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user);
+  done(null, user.id);
 });
 
-passport.deserializeUser((sessionUser, done) => {
-  done(null, sessionUser);
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id } });
+    console.log('Deserialized user:', user);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
