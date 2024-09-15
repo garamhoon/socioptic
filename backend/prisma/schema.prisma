@@ -17,6 +17,7 @@ model User {
   updatedAt      DateTime         @updatedAt
   auth           Auth?
   socialAccounts SocialAccount[]
+  posts          Post[]
 }
 
 model Auth {
@@ -50,4 +51,19 @@ enum SocialProvider {
   FACEBOOK
   X
   // 추가 소셜 미디어 플랫폼을 여기에 추가할 수 있습니다.
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  externalId String   @unique
+  content    String
+  mediaUrl   String?
+  createdAt  DateTime
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  views      Int      @default(0)
+  likes      Int      @default(0)
+  replies    Int      @default(0)
+  reposts    Int      @default(0)
+  quotes     Int      @default(0)
 }
